@@ -1,0 +1,347 @@
+openapi: 3.0.0
+
+info:
+  title: 'Fridge Master'
+  description: 'Test api documentation for mobile app. Note! User gets own bookings buy cookie key. И еще, в тексе теста имеет место быть несостыковке, говорится, что максимальное количество дней равно 24, но также говорится, что аренда является помесячной'
+  version: 1.0.0
+  contact:
+    email: "sailaubek.nar@gmail.com"
+    name: "my Email"
+servers:
+  - url: "app.example.com/v1"
+  - url: "http://127.0.0.1:8000/api"
+
+components:
+  securitySchemes:
+    cookieAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
+      type: apiKey
+      in: cookie
+      name: JSESSIONID 
+tags:
+  # - name: "user"
+  #   description: "manupliation with user model"
+  - name: "order"
+  - name: "location"
+  - name: "container"
+security: 
+  - cookieAuth: []
+  
+paths:
+  # /user/register:
+  #   post:
+  #     # consumes:
+  #     #   - "application/json"
+  #     # produces:
+  #     #   - "application/json"
+  #     tags:
+  #       - "user"
+  #     summary: "register new user"
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: "object"
+  #             properties:
+  #               firstName:
+  #                 type: "string"
+  #                 example: "Ivan"
+  #               secondName:
+  #                 type: "string"
+  #                 example: "Ivanov"
+  #               email:
+  #                 type: "string"
+  #                 format: "email"
+  #               password:
+  #                 type: "string"
+  #                 format: "password"
+  #                 example: "Password1#"
+  #     responses:
+  #       "201":
+  #         description: "User created"
+  #       "403":
+  #         description: "Not passed validation"
+  #       "409":
+  #         description: "User with this email exists"
+  # /user/changepass:
+  #   patch:
+  #     # consumes:
+  #     #   - "application/json"
+  #     # produces:
+  #     #   - "applicatione/json"
+  #     tags:
+  #       - "user"
+  #     summary: "change the password of user"
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: "object"
+  #             properties:
+  #               email:
+  #                 type: "string"
+  #                 format: "email"
+  #               oldPassword:
+  #                 type: "string"
+  #                 example: "oldPassword1#"
+  #               newPassword:
+  #                 type: "string"
+  #                 example: "newPassword1#"
+
+  #     responses:
+  #       "202":
+  #         description: "User password changed"
+  #       "403":
+  #         description: "Not passed"
+  # /user/login:
+  #   get:
+  #     tags:
+  #       - "user"
+  #     summary: "Login into system"
+  #     parameters:
+  #     - name: "email"
+  #       required: true
+  #       in: "query"
+  #       schema:
+  #         type: "string"
+  #         format: "email"
+  #     - name: "password"
+  #       required: true
+  #       in: "query"
+  #       schema:
+  #         type: "string"
+  #     responses:
+  #       "200":
+  #         description: "success"
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: "object"
+  #               properties:
+  #                 JWT-token:
+  #                   type: "string"
+  #         headers:
+  #           X-Rate-Limit:
+  #             schema:
+  #               type: "integer"
+  #               format: "int32"
+  #           X-Expires-After:
+  #             schema:
+  #               type: "string"
+  #               format: "date-time"
+  #       "400":
+  #         description: "Invalid data"
+  /location/:
+    get:
+      tags:
+        - "location"
+      summary: "Get all locations"
+      security: []
+      responses:
+        "200":
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: 'array'
+                items:
+                  type: "object"
+                  properties:
+                    locationId:
+                      type: "integer"
+                      example: '12564'
+                    name:
+                      type: 'string'
+                      example: "Warsaw"
+  /container/{locationId}:
+    get:
+      tags:
+        - "container"
+      summary: "Get all containers in specific location"
+      security: []
+      parameters:
+        - in: "path"
+          name: "locationId"
+          required: true
+          schema:
+            type: "integer"
+            # properties:
+            #   id:
+            #     type: "integer"
+            #     example: 441
+            #     description: "Id of location"
+      responses:
+        "200":
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  properties: 
+                    id:
+                      type: "integer"
+                      example: 1245
+                      description: "Id of container"
+                    RentedBlockNum:
+                      type: "integer"
+                      example: 1
+                      description: "How many blocks are rented in container"
+                    BlockNum:
+                      type: "integer"
+                      example: 15
+                      description: "How many blocks are in container"
+                    temperature:
+                      description: "Temperature above zero degree in container"
+                      type: "integer"
+                      example: 9
+        "404":
+          description: "Location with this id not found"
+  /order/:
+    post:
+      tags:
+        - "order"
+      security: []
+      summary: "Make order and set auth-cookie key"
+      requestBody:
+        required: true
+        content:
+          application/json:
+                schema:
+                  properties:
+                    days:
+                      type: "integer"
+                      example: 8
+                      description: "number of days"
+                    volume:
+                      type: "integer"
+                      example: 87
+                    temperature:
+                      type: "integer"
+                      example: 14
+      responses:
+        "200":
+          description: "Make order and set cookie"
+          headers: 
+            Set-Cookie:
+              schema: 
+                type: "string"
+                example: "JSESSIONID=ajlfnmckjs"
+  /order/calculate:
+    get:
+      tags:
+        - "order"
+      security: []
+      summary: "Check is bookingable"
+      parameters:
+      - in: "query"
+        name: "locationId"
+        required: true
+        schema:
+          type: "integer"
+      - in: "query"
+        name: "volume"
+        required: true
+        schema:
+          type: "integer"
+      - in: "query"
+        name: "temperature"
+        required: true
+        schema:
+          type: "integer"
+      responses:
+        "200":
+          description: "succes"
+          content: 
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  available:
+                    type: "boolean"
+                  daily price:
+                    type: "integer"
+  /orders/:
+    get:
+      security:
+        - cookieAuth: []
+      tags:
+        - "order"
+      summary: "Get array of orders of user by cookie authorization"
+      responses:
+        "200":
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  properties: 
+                    id:
+                      type: "integer"
+                      example: 1245
+                      description: "Id of order"
+                    location id:
+                      type: "integer"
+                      example: 42
+                      description: "Id of location"
+                    acces code:
+                      type: "string"
+                      example: "vfKeaR43n8p8"
+                      description: "code to receive/store products"
+                    status:
+                      enum:
+                        - 'active'
+                        - 'closed'
+                        - 'in process'
+                    total month price:
+                      type: "integer"
+                      example: 9500
+                    expiration date:
+                      type: "string"
+                      format: "date"
+                    details:
+                      type: "array"
+                      description: "array of container with blocks, that were rent"
+                      items:
+                        type: "object"
+                        properties:
+                          container id:
+                            type: "integer"
+                            example: 8
+                            description: "container id"
+                          block number:
+                            type: "integer"
+                            example: 45
+                            description: "how many blocks rented in this container"
+                          price:
+                            type: "integer"
+                            example: 450
+                            description: "price for renting blocks in this container"
+                      
+                    
+        "401":
+          description: "Unauthorized. Cookie key is not correct or empty"
+      
+  # /location/add/:
+  #   post:
+  #     tags:
+  #       - "location"
+  #     summary: "add new location"
+      
+        
+  #     parameters:
+  #     - name: "name"
+  #       description: "Location name"
+  #       in: "query"
+  #       schema:
+  #         type: "string"
+  #     responses:
+  #       "201":
+  #         description: "Location created"
+  
+          
+          
+      
+  
