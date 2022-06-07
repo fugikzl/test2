@@ -14,7 +14,7 @@
     METHOD:GET
 - yourhost.com/api/order/calculate - check is available to store, if yes, return daily price
 
-    METHOD:POST
+    METHOD:GET
     
     Required params:
         
